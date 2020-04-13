@@ -11,7 +11,7 @@ data Form : Set where
 infixl 4 _,_
 
 data Ctx : Set where
-  ●   : Ctx
+  ∅   : Ctx
   _,_ : Ctx → Form → Ctx
 
 data _∈_ : Form → Ctx → Set where

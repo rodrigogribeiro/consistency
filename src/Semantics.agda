@@ -11,7 +11,7 @@ open import Equivalence
 ⟦ A ⊃ B ⟧ = ⟦ A ⟧ → ⟦ B ⟧
 
 Env : Ctx → Set
-Env ● = ⊤
+Env ∅ = ⊤
 Env (Γ , A) = Env Γ × ⟦ A ⟧
 
 lookup : ∀ {Γ A} → A ∈ Γ → Env Γ → ⟦ A ⟧
@@ -33,8 +33,8 @@ lookup (there A∈Γ) (env , _) = lookup A∈Γ env
 
 -- consistency proofs
 
-consistency-ND : ¬ (● ⊢n `⊥) 
+consistency-ND : ¬ (∅ ⊢n `⊥) 
 consistency-ND p = ⟦ p ⟧ND tt
 
-consistency-SC : ¬ (● ⇒ `⊥)
+consistency-SC : ¬ (∅ ⇒ `⊥)
 consistency-SC = consistency-ND ∘ ⇒-complete

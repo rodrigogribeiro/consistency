@@ -1,4 +1,4 @@
-module Semantics where
+module StandardModel where
 
 open import Basics
 open import Form

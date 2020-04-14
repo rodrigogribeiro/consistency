@@ -24,6 +24,8 @@ data _⇒_ : Ctx → Form → Set where
 ⊆-lemma2 p here = p (there here)
 ⊆-lemma2 p (there x) = p (there (⊆-lemma2 (λ z → z) x))
 
+-- weakening for sequents with cut
+
 weakening : ∀ {Γ Γ' A} → Γ ⊆ Γ' → Γ ⇒ A → Γ' ⇒ A
 weakening Γ⊆Γ' (init x) = init (Γ⊆Γ' x)
 weakening Γ⊆Γ' (⊥-l p) = ⊥-l (weakening Γ⊆Γ' p)
@@ -31,4 +33,5 @@ weakening Γ⊆Γ' (cut p p') = cut (weakening Γ⊆Γ' p) (weakening (⊆-inc �
 weakening Γ⊆Γ' (⊃-l p p') = ⊆-lemma Γ⊆Γ' (⊃-l (weakening (λ z → Γ⊆Γ' (there z)) p)
                                                (weakening (⊆-inc (⊆-lemma2 Γ⊆Γ')) p'))
 weakening Γ⊆Γ' (⊃-r p) = ⊃-r (weakening (⊆-inc Γ⊆Γ') p)
+
 

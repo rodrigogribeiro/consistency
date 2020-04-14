@@ -7,6 +7,9 @@ data _≡_ {a} {A : Set a} (x : A) : A → Set a where
 
 {-# BUILTIN EQUALITY _≡_ #-}
 
+sym : ∀ {a}{A : Set a}{x y : A} → x ≡ y → y ≡ x
+sym refl = refl
+
 data ⊤ : Set where
   tt : ⊤ 
 

@@ -8,6 +8,13 @@ data Form : Set where
   `⊥  : Form
   _⊃_ : Form → Form → Form
 
+-- negation abbreviation
+
+~_ : Form → Form
+~ A = A ⊃ `⊥
+
+-- decidable equality
+
 ≡-inv : ∀ {α β α' β'} → (α ⊃ β) ≡ (α' ⊃ β') → (α ≡ α') × (β ≡ β')
 ≡-inv refl = refl , refl
 
@@ -19,6 +26,8 @@ _≟_ : ∀ (α β : Form) → Dec (α ≡ β)
 ...| yes p | yes p' rewrite p | p' = yes refl
 ...| no  p | _      = no (p ∘ fst ∘ ≡-inv)  
 ...| yes p | no p'  = no (p' ∘ snd ∘ ≡-inv) 
+
+-- context and membership relation
 
 infixl 4 _,_
 
@@ -53,6 +62,8 @@ remDups ∅ = ∅
 remDups (Γ , α) with α ∈? Γ
 ... | yes p = remDups Γ
 ... | no  _ = (remDups Γ) , α
+
+-- context subset relation
 
 _⊆_ : Ctx → Ctx → Set
 Γ ⊆ Γ' = ∀ {t} → t ∈ Γ → t ∈ Γ'

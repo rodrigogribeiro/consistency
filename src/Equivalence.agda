@@ -9,7 +9,7 @@ open import SeqCalc
 ⇒-sound (id A∈Γ) = init A∈Γ
 ⇒-sound (⊃-i p) = ⊃-r (⇒-sound p)
 ⇒-sound (⊥-e p) = ⊥-l (⇒-sound p)
-⇒-sound (⊃-e p p') = cut (⇒-sound p) (⊃-l ? {!!}) -- cut (⇒-sound p) (⊃-l (⇒-sound p') (init here))
+⇒-sound (⊃-e {A = A}{B = B} p p') = cut (⇒-sound p) (⊃-l (⇒-sound p1) (init here))
 
 ⇒-complete : ∀ {Γ A} → Γ ⇒ A → Γ ⊢n A
 ⇒-complete (init A∈Γ) = id A∈Γ

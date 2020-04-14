@@ -1,6 +1,7 @@
 module SeqCalc where
 
 open import Form
+open import CtxPerm
 
 infix 3 _⇒_
 
@@ -27,5 +28,7 @@ weakening : ∀ {Γ Γ' A} → Γ ⊆ Γ' → Γ ⇒ A → Γ' ⇒ A
 weakening Γ⊆Γ' (init x) = init (Γ⊆Γ' x)
 weakening Γ⊆Γ' (⊥-l p) = ⊥-l (weakening Γ⊆Γ' p)
 weakening Γ⊆Γ' (cut p p') = cut (weakening Γ⊆Γ' p) (weakening (⊆-inc Γ⊆Γ') p')
-weakening Γ⊆Γ' (⊃-l p p') = ⊆-lemma Γ⊆Γ' (⊃-l (weakening (λ z → Γ⊆Γ' (there z)) p) (weakening (⊆-inc (⊆-lemma2 Γ⊆Γ')) p'))
+weakening Γ⊆Γ' (⊃-l p p') = ⊆-lemma Γ⊆Γ' (⊃-l (weakening (λ z → Γ⊆Γ' (there z)) p)
+                                               (weakening (⊆-inc (⊆-lemma2 Γ⊆Γ')) p'))
 weakening Γ⊆Γ' (⊃-r p) = ⊃-r (weakening (⊆-inc Γ⊆Γ') p)
+

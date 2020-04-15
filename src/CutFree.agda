@@ -1,6 +1,7 @@
 module CutFree where
 
 open import Form
+open import CtxPerm
 
 infix 3 _⇒*_
 
@@ -9,6 +10,8 @@ data _⇒*_ : Ctx → Form → Set where
   ⊥-l  : ∀ {Γ A} → Γ ⇒* `⊥ → Γ ⇒* A
   ⊃-l  : ∀ {Γ A B C} → Γ , A ⊃ B ⇒* A → Γ , A ⊃ B , B ⇒* C → (Γ , A ⊃ B) ⇒* C
   ⊃-r  : ∀ {Γ A B} → Γ , A ⇒* B → Γ ⇒* A ⊃ B
+
+-- proof of contraction 
 
 ∈-contraction : ∀ {Γ Γ' A C} → C ∈ ((Γ , A , A) ∪ Γ') → C ∈ ((Γ , A) ∪ Γ')
 ∈-contraction {Γ' = ∅} here = here

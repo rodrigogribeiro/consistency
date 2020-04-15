@@ -24,5 +24,6 @@ mutual
   completeness-↓ : ∀ {Γ C} → Γ ⇒* C → Γ ⊢+↓ C
   completeness-↓ (init x) = id x
   completeness-↓ (⊥-l p) = change (⊥-e (completeness-↓ p))
-  completeness-↓ (⊃-l p p') = subst-↓ {Γ' = ∅}(completeness-↓ p') (⊃-e (id here) (completeness-↑ p))
+  completeness-↓ (⊃-l p p') = subst-↓ {Γ' = ∅}(completeness-↓ p')
+                                              (⊃-e (id here) (completeness-↑ p))
   completeness-↓ (⊃-r p) = change (⊃-i (change (completeness-↓ p)))

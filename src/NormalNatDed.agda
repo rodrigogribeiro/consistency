@@ -85,3 +85,17 @@ mutual
   subst-↓ (id x) p' with soundness-+↓ p'
   ...| p1 = snd (completeness (subst-nd (id x) p1))
   subst-↓ (change x) p' = change (subst-↑ x p')
+
+
+-- weakening
+
+mutual
+  weakening-↑ : ∀ {Γ Γ' C} → Γ ⊆ Γ' → Γ ⊢+↑ C → Γ' ⊢+↑ C
+  weakening-↑ Γ⊆Γ' (⊃-i p) = ⊃-i (weakening-↑ (⊆-inc Γ⊆Γ') p)
+  weakening-↑ Γ⊆Γ' (⊥-e p) = ⊥-e (weakening-↓ Γ⊆Γ' p)
+  weakening-↑ Γ⊆Γ' (change p) = change (weakening-↓ Γ⊆Γ' p)
+
+  weakening-↓ : ∀ {Γ Γ' C} → Γ ⊆ Γ' → Γ ⊢+↓ C → Γ' ⊢+↓ C
+  weakening-↓ Γ⊆Γ' (⊃-e p p') = ⊃-e (weakening-↓ Γ⊆Γ' p) (weakening-↑ Γ⊆Γ' p')
+  weakening-↓ Γ⊆Γ' (id p) = id (Γ⊆Γ' p)
+  weakening-↓ Γ⊆Γ' (change p) = change (weakening-↑ Γ⊆Γ' p)

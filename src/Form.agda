@@ -56,7 +56,6 @@ data _∈_ : Form → Ctx → Set where
 ... | inr x = inr (there x)
 
 
-
 _∈?_ : ∀ α Γ → Dec (α ∈ Γ)
 α ∈? ∅ = no (λ ())
 α ∈? (Γ , β) with α ≟ β
@@ -64,12 +63,6 @@ _∈?_ : ∀ α Γ → Dec (α ∈ Γ)
 α ∈? (Γ , β) | no  q with α ∈? Γ
 α ∈? (Γ , β) | no  q | yes p = yes (there p)
 α ∈? (Γ , β) | no  q | no  p = no ([ q , p ] ∘ ∈-inv)
-
-remDups : Ctx → Ctx
-remDups ∅ = ∅
-remDups (Γ , α) with α ∈? Γ
-... | yes p = remDups Γ
-... | no  _ = (remDups Γ) , α
 
 -- context subset relation
 

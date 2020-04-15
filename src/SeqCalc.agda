@@ -1,6 +1,7 @@
 module SeqCalc where
 
 open import Form
+open import NormalNatDed
 open import CtxPerm
 
 infix 3 _⇒_
@@ -34,4 +35,31 @@ weakening Γ⊆Γ' (⊃-l p p') = ⊆-lemma Γ⊆Γ' (⊃-l (weakening (λ z →
                                                (weakening (⊆-inc (⊆-lemma2 Γ⊆Γ')) p'))
 weakening Γ⊆Γ' (⊃-r p) = ⊃-r (weakening (⊆-inc Γ⊆Γ') p)
 
+-- soundness theorem
 
+⊆-swap-head : ∀ {Γ A B} → (Γ , B) ⊆ (Γ , A , B)
+⊆-swap-head here = here
+⊆-swap-head (there p) = there (there p)
+
+soundness : ∀ {Γ C} → Γ ⇒ C → Γ ⊢+↑ C
+soundness (init x) = change (id x)
+soundness (⊥-l p) = ⊥-e (change (soundness p))
+soundness (cut p p') = change (⊃-e (change (⊃-i (soundness p'))) (soundness p))
+soundness (⊃-l p p') = change (⊃-e (change (⊃-i (weakening-↑ ⊆-swap-head (soundness p'))))
+                                   (change (⊃-e (id here) (weakening-↑ there (soundness p)))))
+soundness (⊃-r p) = ⊃-i (soundness p)
+
+
+-- completeness theorem
+
+mutual
+  completeness-↑ : ∀ {Γ C} → Γ ⊢+↑ C → Γ ⇒ C
+  completeness-↑ (⊃-i p) = ⊃-r (completeness-↑ p)
+  completeness-↑ (⊥-e p) = ⊥-l (completeness-↓ p)
+  completeness-↑ (change p) = completeness-↓ p
+
+  completeness-↓ : ∀ {Γ C} → Γ ⊢+↓ C → Γ ⇒ C
+  completeness-↓ (⊃-e p p') with completeness-↓ p | completeness-↑ p'
+  ...| p1 | p2 = cut p1 (⊃-l p2 (init here))
+  completeness-↓ (id p) = init p
+  completeness-↓ (change p) = completeness-↑ p

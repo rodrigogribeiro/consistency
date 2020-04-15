@@ -37,8 +37,8 @@ data Ctx : Set where
 
 
 _∪_ : Ctx → Ctx → Ctx
-∅ ∪ Γ' = Γ'
-(Γ , A) ∪ Γ' = (Γ ∪ Γ') , A
+Γ ∪ ∅ = Γ
+Γ ∪ (Γ' , A) = (Γ ∪ Γ') , A
 
 data _∈_ : Form → Ctx → Set where
   here  : ∀ {A Γ} → A ∈ (Γ , A)

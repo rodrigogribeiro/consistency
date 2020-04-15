@@ -4,7 +4,7 @@ open import Basics
 open import Form
 open import NatDed
 open import SeqCalc
-open import Equivalence
+open import EquivNatDedSeqCalc
 
 ⟦_⟧ : Form → Set
 ⟦ `⊥ ⟧ = ⊥

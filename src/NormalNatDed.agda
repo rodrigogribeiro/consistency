@@ -64,3 +64,23 @@ completeness (⊥-e p) = ⊥-e (snd (completeness p)) , change (⊥-e (snd (comp
 completeness (⊃-i p) = ⊃-i (fst (completeness p)) , change (⊃-i (fst (completeness p)))
 completeness (⊃-e p p') with completeness p | completeness p'
 ...| q | q' = change (⊃-e (snd q) (fst q')) , (⊃-e (snd q) (fst q'))
+
+
+-- substitution
+
+mutual
+  subst-↑ : ∀ {Γ Γ' A C} → (Γ , A) ∪ Γ' ⊢+↑ C → Γ ⊢+↓ A → Γ ∪ Γ' ⊢+↑ C
+  subst-↑ (⊃-i p) (⊃-e p' x) = ⊃-i (subst-↑ p (⊃-e p' x))
+  subst-↑ (⊃-i p) (id x) = ⊃-i (subst-↑ p (id x))
+  subst-↑ (⊃-i p) (change x) = ⊃-i (subst-↑ p (change x))
+  subst-↑ (⊥-e x) (⊃-e p' x₁) = ⊥-e (subst-↓ x (⊃-e p' x₁))
+  subst-↑ (⊥-e x) (id x₁) = ⊥-e (subst-↓ x (id x₁))
+  subst-↑ (⊥-e x) (change x₁) = ⊥-e (subst-↓ x (change x₁))
+  subst-↑ (change x) p' = change (subst-↓ x p')
+
+  subst-↓ : ∀ {Γ Γ' A C} → (Γ , A) ∪ Γ' ⊢+↓ C → Γ ⊢+↓ A → Γ ∪ Γ' ⊢+↓ C
+  subst-↓ (⊃-e p x) (⊃-e p' x₁) = {!!}
+  subst-↓ (⊃-e p x) (id x₁) = {!!}
+  subst-↓ (⊃-e p x) (change x₁) = {!!}
+  subst-↓ (id x) p' = {!!}
+  subst-↓ (change x) p' = {!!}

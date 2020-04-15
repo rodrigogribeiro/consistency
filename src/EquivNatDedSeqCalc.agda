@@ -1,4 +1,4 @@
-module Equivalence where
+module EquivNatDedSeqCalc where
 
 open import Basics
 open import Form

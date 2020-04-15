@@ -23,5 +23,5 @@ glivenko-nd `⊥ (raa p) = ⊃-i (⊃-e (glivenko-nd `⊥ p) (id here))
 glivenko-nd `⊥ (⊃-e p p') = ⊥-e (⊃-e (glivenko-nd _ p) (glivenko-nd _ p'))
 glivenko-nd (A ⊃ B) (id x) = ⊃-i (⊃-e (id here) (id (there x)))
 glivenko-nd (A ⊃ B) (raa p) = ⊃-i (⊃-e (glivenko-nd `⊥ p) (⊃-i (id here)))
-glivenko-nd (A ⊃ B) (⊃-i p) = ?
+glivenko-nd (A ⊃ B) (⊃-i p) = {!!}
 glivenko-nd (A ⊃ B) (⊃-e p p') = {!!}

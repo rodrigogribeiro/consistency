@@ -48,6 +48,14 @@ data _∈_ : Form → Ctx → Set where
 ∈-inv here = inl refl
 ∈-inv (there p) = inr p
 
+∈-∪-inv : ∀ {Γ Γ' A} → A ∈ (Γ ∪ Γ') → (A ∈ Γ) ⊎ (A ∈ Γ')
+∈-∪-inv {Γ' = ∅} p = inl p
+∈-∪-inv {Γ' = Γ' , B} here = inr here
+∈-∪-inv {Γ' = Γ' , B} (there p) with ∈-∪-inv {Γ' = Γ'} p
+... | inl x = inl x
+... | inr x = inr (there x)
+
+
 
 _∈?_ : ∀ α Γ → Dec (α ∈ Γ)
 α ∈? ∅ = no (λ ())
@@ -68,7 +76,16 @@ remDups (Γ , α) with α ∈? Γ
 _⊆_ : Ctx → Ctx → Set
 Γ ⊆ Γ' = ∀ {t} → t ∈ Γ → t ∈ Γ'
 
+-- some lemmas about subcontexts
+
 ⊆-inc : ∀ {Γ Γ' A} → Γ ⊆ Γ' → (Γ , A) ⊆ (Γ' , A)
 ⊆-inc Γ⊆Γ' here = here
 ⊆-inc Γ⊆Γ' (there A∈Γ) = there (Γ⊆Γ' A∈Γ)
 
+⊆-∪-l : ∀ Γ Γ' → (Γ ⊆ (Γ ∪ Γ'))
+⊆-∪-l Γ ∅ p = p
+⊆-∪-l Γ (Γ' , A) p = there (⊆-∪-l Γ Γ' p)
+
+⊆-∪-r : ∀ Γ Γ' → Γ' ⊆ (Γ ∪ Γ')
+⊆-∪-r Γ .(_ , _) here = here
+⊆-∪-r Γ .(_ , _) (there p) = there (⊆-∪-r _ _ p)

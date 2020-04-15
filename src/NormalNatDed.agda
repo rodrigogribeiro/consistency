@@ -79,8 +79,9 @@ mutual
   subst-↑ (change x) p' = change (subst-↓ x p')
 
   subst-↓ : ∀ {Γ Γ' A C} → (Γ , A) ∪ Γ' ⊢+↓ C → Γ ⊢+↓ A → Γ ∪ Γ' ⊢+↓ C
-  subst-↓ (⊃-e p x) (⊃-e p' x₁) = {!!}
-  subst-↓ (⊃-e p x) (id x₁) = {!!}
-  subst-↓ (⊃-e p x) (change x₁) = {!!}
-  subst-↓ (id x) p' = {!!}
-  subst-↓ (change x) p' = {!!}
+  subst-↓ (⊃-e p x) (⊃-e p' x₁) = ⊃-e (subst-↓ p (⊃-e p' x₁)) (subst-↑ x (⊃-e p' x₁))
+  subst-↓ (⊃-e p x) (id x₁) = ⊃-e (subst-↓ p (id x₁)) (subst-↑ x (id x₁))
+  subst-↓ (⊃-e p x) (change x₁) = ⊃-e (subst-↓ p (change x₁)) (subst-↑ x (change x₁))
+  subst-↓ (id x) p' with soundness-+↓ p'
+  ...| p1 = snd (completeness (subst-nd (id x) p1))
+  subst-↓ (change x) p' = change (subst-↑ x p')

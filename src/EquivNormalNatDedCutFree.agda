@@ -13,17 +13,21 @@ soundness (⊃-l {A = A}{B = B} p p') with soundness p | soundness p'
 soundness (⊃-r p) = ⊃-i (soundness p)
 
 mutual
-  completeness-↑ : ∀ {Γ C} → Γ ⇒* C → Γ ⊢+↑ C
-  completeness-↑ (init x) = change (id x)
-  completeness-↑ (⊥-l p) = ⊥-e (change (completeness-↑ p))
-  completeness-↑ (⊃-l p p') = change (⊃-e (change (⊃-i (completeness-↑ p')))
-                                          (change (⊃-e (id here)
-                                                       (completeness-↑ p))))
-  completeness-↑ (⊃-r p) = ⊃-i (completeness-↑ p)
+  completeness-↑ : ∀ {Γ C} → Γ ⊢+↑ C → Γ ⇒* C
+  completeness-↑ (⊃-i p) = ⊃-r (completeness-↑ p)
+  completeness-↑ (⊥-e x) = ⊥-l (completeness-↓ x (init here))
+  completeness-↑ (change x) = completeness-↓ x (init here)
 
-  completeness-↓ : ∀ {Γ C} → Γ ⇒* C → Γ ⊢+↓ C
-  completeness-↓ (init x) = id x
-  completeness-↓ (⊥-l p) = change (⊥-e (completeness-↓ p))
-  completeness-↓ (⊃-l p p') = subst-↓ {Γ' = ∅}(completeness-↓ p')
-                                              (⊃-e (id here) (completeness-↑ p))
-  completeness-↓ (⊃-r p) = change (⊃-i (change (completeness-↓ p)))
+  completeness-↓ : ∀ {Γ C A} → Γ ⊢+↓ A → Γ , A ⇒* C →  Γ ⇒* C
+  completeness-↓ (⊃-e p x) (init here) = {!!}
+  completeness-↓ (⊃-e p x) (init (there x₁)) = init x₁
+  completeness-↓ (⊃-e p x) (⊥-l p') = ⊥-l (completeness-↓ (⊃-e p x) p')
+  completeness-↓ (⊃-e p x) (⊃-l p' p'') = {!!}
+  completeness-↓ (⊃-e p x) (⊃-r p') = {!!}
+  completeness-↓ (id here) p' = contraction p'
+  completeness-↓ (id (there x)) p' = {!!}
+  completeness-↓ (change x) (init here) = completeness-↑ x
+  completeness-↓ (change x) (init (there x₁)) = init x₁
+  completeness-↓ (change x) (⊥-l p') = ⊥-l (completeness-↓ (change x) p')
+  completeness-↓ (change x) (⊃-l p' p'') = {!!}
+  completeness-↓ (change x) (⊃-r p') = {!!}

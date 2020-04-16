@@ -35,6 +35,7 @@ data Ctx : Set where
   ∅   : Ctx
   _,_ : Ctx → Form → Ctx
 
+infixr 6 _∪_
 
 _∪_ : Ctx → Ctx → Ctx
 Γ ∪ ∅ = Γ
@@ -63,6 +64,12 @@ _∈?_ : ∀ α Γ → Dec (α ∈ Γ)
 α ∈? (Γ , β) | no  q with α ∈? Γ
 α ∈? (Γ , β) | no  q | yes p = yes (there p)
 α ∈? (Γ , β) | no  q | no  p = no ([ q , p ] ∘ ∈-inv)
+
+-- lemmas about union and membership
+
+∪-inl : ∀ {Γ A} → A ∈ Γ → ∀ Γ' → A ∈ (Γ ∪ Γ')
+∪-inl p ∅ = p
+∪-inl p (Γ' , B) = there (∪-inl p Γ')
 
 -- context subset relation
 

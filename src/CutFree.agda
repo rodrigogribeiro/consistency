@@ -1,5 +1,6 @@
 module CutFree where
 
+open import Basics
 open import Form
 open import CtxPerm
 
@@ -11,13 +12,17 @@ data _⇒*_ : Ctx → Form → Set where
   ⊃-l  : ∀ {Γ A B C} → Γ , A ⊃ B ⇒* A → Γ , A ⊃ B , B ⇒* C → (Γ , A ⊃ B) ⇒* C
   ⊃-r  : ∀ {Γ A B} → Γ , A ⇒* B → Γ ⇒* A ⊃ B
 
--- proof of contraction 
+-- proof of contraction: this is not general enough. Damn it!!!
 
-∈-contraction : ∀ {Γ Γ' A C} → C ∈ ((Γ , A , A) ∪ Γ') → C ∈ ((Γ , A) ∪ Γ')
-∈-contraction {Γ' = ∅} here = here
-∈-contraction {Γ' = ∅} (there p) = p
-∈-contraction {Γ' = Γ' , B} here = here
-∈-contraction {Γ' = Γ' , B} (there p) = there (∈-contraction {Γ' = Γ'} p)
+∈-contraction : ∀ {Γ Γ1 Γ' A C} → C ∈ ((Γ , A) ∪ (Γ1 , A) ∪ Γ') → C ∈ ((Γ , A) ∪ Γ1 ∪ Γ')
+∈-contraction {Γ1 = ∅} {Γ' = ∅} here = here
+∈-contraction {Γ1 = ∅} {Γ' = ∅} (there p) = p
+∈-contraction {Γ1 = Γ1 , C} {Γ' = ∅} here = there (∪-inl here Γ1)
+∈-contraction {Γ1 = Γ1 , C} {Γ' = ∅} (there p) = p
+∈-contraction {Γ = Γ} {Γ1 = Γ1} {Γ' = Γ' , B} {A = A} {C = .B} here = here
+∈-contraction {Γ = Γ} {Γ1 = Γ1} {Γ' = Γ' , B} {A = A} {C = C} (there p) = there (∈-contraction p)
+
+{-
 
 contraction-lemma : ∀ {Γ Γ' A C} → ((Γ , A , A) ∪ Γ') ⇒* C → ((Γ , A) ∪ Γ') ⇒* C
 contraction-lemma {Γ' = ∅} (init here) = init here
@@ -40,3 +45,5 @@ contraction (⊃-l p p') with contraction p | contraction-lemma {Γ' = ∅ , _} 
 ...| p1 | p2 = ⊃-l p1 p2
 contraction (⊃-r p) with contraction-lemma {Γ' = ∅ , _} p
 ...| p1 = ⊃-r p1
+
+-}

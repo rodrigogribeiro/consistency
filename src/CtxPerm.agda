@@ -33,3 +33,21 @@ data _~_ : Ctx → Ctx → Set where
 ~-∈ (there (there p)) Swap = there (there p)
 ~-∈ p (Trans p' p'') with ~-∈ p p'
 ...| p1 = ~-∈ p1 p''
+
+-- another definition for permuations
+
+~-∈-def-l : ∀ {Γ}{Γ'} → Γ ~ Γ' → ∀ {A} → A ∈ Γ → A ∈ Γ'
+~-∈-def-l (Skip p) here = here
+~-∈-def-l (Skip p) (there p') = there (~-∈-def-l p p')
+~-∈-def-l Swap here = there here
+~-∈-def-l Swap (there here) = here
+~-∈-def-l Swap (there (there p')) = there (there p')
+~-∈-def-l (Trans p p₁) p' with ~-∈-def-l p p'
+...| p1 = ~-∈-def-l p₁ p1
+
+-- context union produces permutations
+
+~-∪ : ∀ Γ Γ' → (Γ ∪ Γ') ~ (Γ' ∪ Γ)
+~-∪ Γ ∅ rewrite ∪-∅-l {Γ} = ~-refl
+~-∪ ∅ (Γ' , A) rewrite ∪-∅-l {Γ'} = Skip ~-refl
+~-∪ (Γ , B) (Γ' , A) = {!!}

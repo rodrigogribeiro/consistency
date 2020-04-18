@@ -71,6 +71,19 @@ _∈?_ : ∀ α Γ → Dec (α ∈ Γ)
 ∪-inl p ∅ = p
 ∪-inl p (Γ' , B) = there (∪-inl p Γ')
 
+-- monoidal properties of context permutations
+
+∪-∅-l : ∀ {Γ} → ∅ ∪ Γ ≡ Γ
+∪-∅-l {∅} = refl
+∪-∅-l {(Γ , A)} rewrite ∪-∅-l {Γ} = refl
+
+∪-∅-r : ∀ {Γ} → Γ ∪ ∅ ≡ Γ
+∪-∅-r {Γ} = refl
+
+∪-assoc : ∀ {Γ Γ1 Γ'} → ((Γ ∪ Γ1) ∪ Γ') ≡ (Γ ∪ (Γ1 ∪ Γ'))
+∪-assoc {Γ} {Γ1} {∅} = refl
+∪-assoc {Γ} {Γ1} {Γ' , A} rewrite ∪-assoc {Γ} {Γ1} {Γ'} = refl
+
 -- context subset relation
 
 _⊆_ : Ctx → Ctx → Set

@@ -38,9 +38,69 @@ data Ctx : Set where
 infixr 6 _∪_
 
 _∪_ : Ctx → Ctx → Ctx
-Γ ∪ ∅ = Γ
-Γ ∪ (Γ' , A) = (Γ ∪ Γ') , A
+∅ ∪ Γ' = Γ'
+(Γ , A) ∪ Γ' = (Γ ∪ Γ') , A
 
+Any : (Form → Set) → Ctx → Set
+Any P ∅ = ⊥
+Any P (Γ , A) = P A ⊎ Any P Γ
+
+infix 6 _∈_
+
+_∈_ : Form → Ctx → Set
+α ∈ Γ = Any (λ β → α ≡ β) Γ 
+
+-- some lemmas about Any
+
+Any-∪ : ∀ (P : Form → Set)(Γ Γ' : Ctx) →
+        Any P (Γ ∪ Γ') ↔ ((Any P Γ) ⊎ (Any P Γ'))
+Any-∪ P ∅ Γ'
+  = begin-↔
+      Any P Γ'        ↔⟨ ↔-sym ⊎-left-identity ⟩
+      (⊥ ⊎ Any P Γ')
+    ↔-∎
+Any-∪ P (Γ , A) Γ'
+  = begin-↔
+       (P A) ⊎ (Any P (Γ ∪ Γ'))            ↔⟨ ⊎-cong (P A ↔-∎) (Any-∪ P Γ Γ') ⟩
+       (P A) ⊎ ((Any P Γ) ⊎ (Any P Γ'))    ↔⟨ ⊎-assoc ⟩
+       (((P A) ⊎ (Any P Γ)) ⊎ (Any P Γ'))
+    ↔-∎
+
+-- lemmas about ∈
+
+∈-∪-inv : ∀ {Γ Γ' A} → A ∈ (Γ ∪ Γ') → (A ∈ Γ) ⊎ (A ∈ Γ')
+∈-∪-inv {∅} p = inr p
+∈-∪-inv {Γ , A} (inl p) rewrite p = inl (inl refl)
+∈-∪-inv {Γ , A} (inr p) with ∈-∪-inv {Γ = Γ} p
+... | inl p' = inl (inr p')
+... | inr p' = inr p'
+
+
+∈-inv : ∀ {Γ A B} → B ∈ (Γ , A) → (B ≡ A) ⊎ B ∈ Γ
+∈-inv (inl x) = inl x
+∈-inv (inr x) = inr x
+
+_∈?_ : ∀ α Γ → Dec (α ∈ Γ)
+α ∈? ∅ = no id
+α ∈? (Γ , A) with α ≟ A
+α ∈? (Γ , A) | yes p rewrite p = yes (inl refl)
+α ∈? (Γ , A) | no  p with α ∈? Γ
+α ∈? (Γ , A) | no  p | yes q = yes (inr q)
+α ∈? (Γ , A) | no  p | no  q = no [ p , q ]
+
+-- subcontext relation
+
+_⊆_ : Ctx → Ctx → Set
+Γ ⊆ Γ' = ∀ {t} → t ∈ Γ → t ∈ Γ'
+
+⊆-inc : ∀ {Γ Γ' A} → Γ ⊆ Γ' → (Γ , A) ⊆ (Γ' , A)
+⊆-inc {Γ}{Γ'}{A} Γ⊆Γ' {B} p with B ≟ A
+⊆-inc {Γ}{Γ'}{A} Γ⊆Γ' {B} p | yes q = inl q
+⊆-inc {Γ} {Γ'} {A} Γ⊆Γ' {B} (inl x) | no q = inl x
+⊆-inc {Γ} {Γ'} {A} Γ⊆Γ' {B} (inr x) | no q = inr (Γ⊆Γ' x)
+
+
+{-
 data _∈_ : Form → Ctx → Set where
   here  : ∀ {A Γ} → A ∈ (Γ , A)
   there : ∀ {A A' Γ} → A ∈ Γ → A ∈ (Γ , A')
@@ -102,3 +162,4 @@ _⊆_ : Ctx → Ctx → Set
 ⊆-∪-r : ∀ Γ Γ' → Γ' ⊆ (Γ ∪ Γ')
 ⊆-∪-r Γ .(_ , _) here = here
 ⊆-∪-r Γ .(_ , _) (there p) = there (⊆-∪-r _ _ p)
+-}

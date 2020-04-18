@@ -75,10 +75,18 @@ Any-∪ P (Γ , A) Γ'
 ... | inl p' = inl (inr p')
 ... | inr p' = inr p'
 
+∈-∪-intro-l : ∀ {Γ Γ' A} → A ∈ Γ → A ∈ (Γ ∪ Γ')
+∈-∪-intro-l {Γ , B} {Γ'} {A} (inl x) = inl x
+∈-∪-intro-l {Γ , B} {Γ'} {A} (inr x) = inr (∈-∪-intro-l x)
+
+∈-∪-intro-r : ∀ {Γ Γ' A} → A ∈ Γ' → A ∈ (Γ ∪ Γ')
+∈-∪-intro-r {∅} p = p
+∈-∪-intro-r {Γ , B} p = inr (∈-∪-intro-r p)
 
 ∈-inv : ∀ {Γ A B} → B ∈ (Γ , A) → (B ≡ A) ⊎ B ∈ Γ
 ∈-inv (inl x) = inl x
 ∈-inv (inr x) = inr x
+
 
 _∈?_ : ∀ α Γ → Dec (α ∈ Γ)
 α ∈? ∅ = no id
@@ -98,6 +106,16 @@ _⊆_ : Ctx → Ctx → Set
 ⊆-inc {Γ}{Γ'}{A} Γ⊆Γ' {B} p | yes q = inl q
 ⊆-inc {Γ} {Γ'} {A} Γ⊆Γ' {B} (inl x) | no q = inl x
 ⊆-inc {Γ} {Γ'} {A} Γ⊆Γ' {B} (inr x) | no q = inr (Γ⊆Γ' x)
+
+⊆-∪-l : ∀ Γ Γ' → (Γ ⊆ (Γ ∪ Γ'))
+⊆-∪-l ∅ Γ' = λ ()
+⊆-∪-l (Γ , A) Γ' (inl x) = inl x
+⊆-∪-l (Γ , A) Γ' (inr x) = inr (⊆-∪-l Γ Γ' x)
+
+⊆-∪-r : ∀ Γ Γ' → Γ' ⊆ (Γ ∪ Γ')
+⊆-∪-r ∅ Γ' = λ z → z
+⊆-∪-r (Γ , A) Γ' p = inr (⊆-∪-r Γ Γ' p)
+
 
 
 {-

@@ -27,11 +27,24 @@ weakening Γ⊆Γ' (⊃-i p) = ⊃-i (weakening (⊆-inc Γ⊆Γ') p)
 weakening Γ⊆Γ' (⊃-e p p') = ⊃-e (weakening Γ⊆Γ' p) (weakening Γ⊆Γ' p')
 weakening Γ⊆Γ' (⊥-e p) = ⊥-e (weakening Γ⊆Γ' p)
 
-contraction : ∀ {Γ Γ' A B} → (Γ , A) ∪ (Γ' , A) ⊢n B → (Γ , A) ∪ Γ' ⊢n B
-contraction (id p) = {!!}
+∈-contraction : ∀ Γ Γ' A B → B ∈ (Γ ∪ (Γ' , A) , A) →  B ∈ (Γ ∪ (Γ' , A))
+∈-contraction ∅ Γ' A B (inl x) = inl x
+∈-contraction ∅ Γ' A B (inr x) = x
+∈-contraction (Γ , C) Γ' A .A (inl refl) = inr (∈-∪-intro-r {Γ = Γ} (inl refl))
+∈-contraction (Γ , C) Γ' A B (inr x) = x
+
+contraction : ∀ {Γ Γ' A B} → (Γ , A) ∪ (Γ' , A) ⊢n B → Γ ∪ (Γ' , A) ⊢n B
+contraction (id p) = id (∈-contraction _ _ _ _ p)
 contraction (⊥-e p) = ⊥-e (contraction p)
-contraction {Γ}{Γ'}(⊃-i p) = ⊃-i {!!}
+contraction {Γ}{Γ'}(⊃-i p) = ⊃-e (⊃-i (⊃-i p)) (id (∈-∪-intro-r {Γ}{Γ' , _} (inl refl)))
 contraction (⊃-e p p₁) = ⊃-e (contraction p) (contraction p₁)
+
+subst-nd : ∀ {Γ Γ' A C} → (Γ , A) ∪ Γ' ⊢n C → Γ ⊢n A → Γ ∪ Γ' ⊢n C
+subst-nd (id (inl refl)) p' = weakening (⊆-∪-l _ _) p'
+subst-nd (id (inr x)) p' = id x
+subst-nd (⊥-e p) p' = ⊥-e (subst-nd p p')
+subst-nd {Γ}{Γ'}(⊃-i p) p' = ⊃-i {!!}
+subst-nd (⊃-e p p1) p' = ⊃-e (subst-nd p p') (subst-nd p1 p')
 
 
 -- -- exchange for natural deduction

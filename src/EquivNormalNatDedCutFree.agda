@@ -1,6 +1,6 @@
 module EquivNormalNatDedCutFree where
 
-open import Basics
+open import Basics hiding (id)
 open import Form
 open import NormalNatDed
 open import CutFree

@@ -12,32 +12,31 @@ data _⇒*_ : Ctx → Form → Set where
   ⊃-l  : ∀ {Γ A B C} → Γ , A ⊃ B ⇒* A → Γ , A ⊃ B , B ⇒* C → (Γ , A ⊃ B) ⇒* C
   ⊃-r  : ∀ {Γ A B} → Γ , A ⇒* B → Γ ⇒* A ⊃ B
 
+-- proof of weakening
+
+weakening : ∀ {Γ Γ' C} → Γ ⊆ Γ' → Γ ⇒* C → Γ' ⇒* C
+weakening s (init x) = init (s x)
+weakening s (⊥-l p) = ⊥-l (weakening s p)
+weakening s (⊃-l p p') = {!!}
+weakening s (⊃-r p) = ⊃-r (weakening (⊆-inc s) p)
+
+
 -- proof of exchange
 
 exchange : ∀ {Γ Γ' C} → Γ ~ Γ' → Γ ⇒* C → Γ' ⇒* C
-exchange ex (init x) = {!!}
+exchange ex (init x) = init (_↔_.to (ex _) x)
 exchange ex (⊥-l p) = ⊥-l (exchange ex p)
 exchange ex (⊃-l p p') = {!!}
-exchange ex (⊃-r p) = ⊃-r (exchange (Skip ex) p)
+exchange ex (⊃-r p) = ⊃-r (exchange (~-inc ex) p)
 
 
 -- proof of contraction: this is not general enough. Damn it!!!
 
 ∈-contraction : ∀ {Γ Γ1 Γ' A C} → C ∈ ((Γ , A) ∪ (Γ1 , A) ∪ Γ') → C ∈ ((Γ , A) ∪ Γ1 ∪ Γ')
-∈-contraction {Γ1 = ∅} {Γ' = ∅} here = here
-∈-contraction {Γ1 = ∅} {Γ' = ∅} (there p) = p
-∈-contraction {Γ1 = Γ1 , C} {Γ' = ∅} here = there (∪-inl here Γ1)
-∈-contraction {Γ1 = Γ1 , C} {Γ' = ∅} (there p) = p
-∈-contraction {Γ = Γ} {Γ1 = Γ1} {Γ' = Γ' , B} {A = A} {C = .B} here = here
-∈-contraction {Γ = Γ} {Γ1 = Γ1} {Γ' = Γ' , B} {A = A} {C = C} (there p) = there (∈-contraction p)
+∈-contraction = {!!}
 
 contraction-lemma : ∀ Γ Γ1 Γ' A C → ((Γ , A) ∪ (Γ1 , A) ∪ Γ') ⇒* C → ((Γ , A) ∪ Γ1 ∪ Γ') ⇒* C
-contraction-lemma Γ Γ1 ∅ A C (init x) = init (∈-contraction {Γ1 = Γ1}{Γ' = ∅} x)
-contraction-lemma Γ Γ1 ∅ A C (⊥-l p) = ⊥-l (contraction-lemma Γ Γ1 ∅ A `⊥ p)
-contraction-lemma Γ Γ1 ∅ (A ⊃ B) C (⊃-l p p') with contraction-lemma Γ Γ1 ∅ _ _ p | contraction-lemma Γ Γ1 (∅ , B) _ _ p' 
-...| p1 | p2 = {!ex!}
-contraction-lemma Γ Γ1 ∅ A .(_ ⊃ _) (⊃-r p) = ⊃-r (contraction-lemma Γ Γ1 (∅ , _) A _ p)
-contraction-lemma Γ Γ1 (Γ' , x) A C p = {!!}
+contraction-lemma = {!!}
 
 {-
 

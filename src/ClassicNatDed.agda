@@ -1,6 +1,6 @@
 module ClassicNatDed where
 
-open import Basics
+open import Basics hiding (id)
 open import Form
 open import CtxPerm
 

@@ -38,9 +38,113 @@ data Ctx : Set where
 infixr 6 _∪_
 
 _∪_ : Ctx → Ctx → Ctx
-∅ ∪ Γ' = Γ'
-(Γ , A) ∪ Γ' = (Γ ∪ Γ') , A
+Γ ∪ ∅ = Γ
+Γ ∪ (Γ' , A) = (Γ ∪ Γ') , A
 
+
+data _∈_ : Form → Ctx → Set where
+  here  : ∀ {A Γ} → A ∈ (Γ , A)
+  there : ∀ {A A' Γ} → A ∈ Γ → A ∈ (Γ , A')
+
+∈-inv : ∀ {α β Γ} → α ∈ (Γ , β) → (α ≡ β) ⊎ (α ∈ Γ)
+∈-inv here = inl refl
+∈-inv (there p) = inr p
+
+∈-∪-inv : ∀ {Γ Γ' A} → A ∈ (Γ ∪ Γ') → (A ∈ Γ) ⊎ (A ∈ Γ')
+∈-∪-inv {Γ} {∅} p = inl p
+∈-∪-inv {Γ} {Γ' , B} here = inr here
+∈-∪-inv {Γ} {Γ' , B} (there p) with ∈-∪-inv {Γ}{Γ'} p
+...| inl q = inl q
+...| inr q = inr (there q)
+
+_∈?_ : ∀ α Γ → Dec (α ∈ Γ)
+α ∈? ∅ = no (λ ())
+α ∈? (Γ , β) with α ≟ β
+α ∈? (Γ , β) | yes p rewrite p = yes here
+α ∈? (Γ , β) | no  q with α ∈? Γ
+α ∈? (Γ , β) | no  q | yes p = yes (there p)
+α ∈? (Γ , β) | no  q | no  p = no ([ q , p ] ∘ ∈-inv)
+
+-- lemmas about union and membership
+
+∈-∪-intro-l : ∀ {Γ A} → A ∈ Γ → ∀ {Γ'} → A ∈ (Γ ∪ Γ')
+∈-∪-intro-l p {∅} = p
+∈-∪-intro-l p {Γ' , x} = there (∈-∪-intro-l p)
+
+∈-∪-intro-r : ∀ {Γ' A} → A ∈ Γ' → ∀ {Γ} → A ∈ (Γ ∪ Γ')
+∈-∪-intro-r here = here
+∈-∪-intro-r (there p) = there (∈-∪-intro-r p)
+
+-- subset membership (order preserving embedding)
+
+infix 20 _⊆_
+
+data _⊆_ : Ctx → Ctx → Set where
+  stop : ∅ ⊆ ∅
+  drop : ∀ {Γ Γ' A} → Γ ⊆ Γ' → Γ ⊆ (Γ' , A)
+  keep : ∀ {Γ Γ' A} → Γ ⊆ Γ' → (Γ , A) ⊆ (Γ' , A)
+
+
+⊆-refl : ∀ {Γ} → Γ ⊆ Γ
+⊆-refl {∅} = stop
+⊆-refl {Γ , x} = keep ⊆-refl
+
+∅-⊆ : ∀ {Γ} → ∅ ⊆ Γ
+∅-⊆ {∅} = stop
+∅-⊆ {Γ , x} = drop ∅-⊆
+
+-- embedding membership proofs
+
+∈-⊆ : ∀ {Γ Γ' A} → Γ ⊆ Γ' → A ∈ Γ → A ∈ Γ'
+∈-⊆ (drop p) here = there (∈-⊆ p here)
+∈-⊆ (drop p) (there q) = there (∈-⊆ p (there q))
+∈-⊆ (keep p) here = here
+∈-⊆ (keep p) (there q) = there (∈-⊆ p q)
+
+⊆-∪-l : ∀ Γ Γ' → (Γ ⊆ (Γ ∪ Γ'))
+⊆-∪-l Γ ∅ = ⊆-refl
+⊆-∪-l Γ (Γ' , x) = drop (⊆-∪-l Γ Γ')
+
+⊆-∪-r : ∀ Γ Γ' → Γ' ⊆ (Γ ∪ Γ')
+⊆-∪-r Γ ∅ = ∅-⊆
+⊆-∪-r Γ (Γ' , x) = keep (⊆-∪-r Γ Γ')
+
+{-
+-- monoidal properties of context permutations
+
+∪-∅-l : ∀ {Γ} → ∅ ∪ Γ ≡ Γ
+∪-∅-l {∅} = refl
+∪-∅-l {(Γ , A)} rewrite ∪-∅-l {Γ} = refl
+
+∪-∅-r : ∀ {Γ} → Γ ∪ ∅ ≡ Γ
+∪-∅-r {Γ} = refl
+
+∪-assoc : ∀ {Γ Γ1 Γ'} → ((Γ ∪ Γ1) ∪ Γ') ≡ (Γ ∪ (Γ1 ∪ Γ'))
+∪-assoc {Γ} {Γ1} {∅} = refl
+∪-assoc {Γ} {Γ1} {Γ' , A} rewrite ∪-assoc {Γ} {Γ1} {Γ'} = refl
+
+-- context subset relation
+
+_⊆_ : Ctx → Ctx → Set
+Γ ⊆ Γ' = ∀ {t} → t ∈ Γ → t ∈ Γ'
+
+-- some lemmas about subcontexts
+
+⊆-inc : ∀ {Γ Γ' A} → Γ ⊆ Γ' → (Γ , A) ⊆ (Γ' , A)
+⊆-inc Γ⊆Γ' here = here
+⊆-inc Γ⊆Γ' (there A∈Γ) = there (Γ⊆Γ' A∈Γ)
+
+⊆-∪-l : ∀ Γ Γ' → (Γ ⊆ (Γ ∪ Γ'))
+⊆-∪-l Γ ∅ p = p
+⊆-∪-l Γ (Γ' , A) p = there (⊆-∪-l Γ Γ' p)
+
+⊆-∪-r : ∀ Γ Γ' → Γ' ⊆ (Γ ∪ Γ')
+⊆-∪-r Γ .(_ , _) here = here
+⊆-∪-r Γ .(_ , _) (there p) = there (⊆-∪-r _ _ p)
+-}
+
+
+{-
 Any : (Form → Set) → Ctx → Set
 Any P ∅ = ⊥
 Any P (Γ , A) = P A ⊎ Any P Γ
@@ -119,69 +223,4 @@ _⊆_ : Ctx → Ctx → Set
 ⊆-∪-r : ∀ Γ Γ' → Γ' ⊆ (Γ ∪ Γ')
 ⊆-∪-r ∅ Γ' = λ z → z
 ⊆-∪-r (Γ , A) Γ' p = inr (⊆-∪-r Γ Γ' p)
-
-
-
-{-
-data _∈_ : Form → Ctx → Set where
-  here  : ∀ {A Γ} → A ∈ (Γ , A)
-  there : ∀ {A A' Γ} → A ∈ Γ → A ∈ (Γ , A')
-
-∈-inv : ∀ {α β Γ} → α ∈ (Γ , β) → (α ≡ β) ⊎ (α ∈ Γ)
-∈-inv here = inl refl
-∈-inv (there p) = inr p
-
-∈-∪-inv : ∀ {Γ Γ' A} → A ∈ (Γ ∪ Γ') → (A ∈ Γ) ⊎ (A ∈ Γ')
-∈-∪-inv {Γ' = ∅} p = inl p
-∈-∪-inv {Γ' = Γ' , B} here = inr here
-∈-∪-inv {Γ' = Γ' , B} (there p) with ∈-∪-inv {Γ' = Γ'} p
-... | inl x = inl x
-... | inr x = inr (there x)
-
-
-_∈?_ : ∀ α Γ → Dec (α ∈ Γ)
-α ∈? ∅ = no (λ ())
-α ∈? (Γ , β) with α ≟ β
-α ∈? (Γ , β) | yes p rewrite p = yes here
-α ∈? (Γ , β) | no  q with α ∈? Γ
-α ∈? (Γ , β) | no  q | yes p = yes (there p)
-α ∈? (Γ , β) | no  q | no  p = no ([ q , p ] ∘ ∈-inv)
-
--- lemmas about union and membership
-
-∪-inl : ∀ {Γ A} → A ∈ Γ → ∀ Γ' → A ∈ (Γ ∪ Γ')
-∪-inl p ∅ = p
-∪-inl p (Γ' , B) = there (∪-inl p Γ')
-
--- monoidal properties of context permutations
-
-∪-∅-l : ∀ {Γ} → ∅ ∪ Γ ≡ Γ
-∪-∅-l {∅} = refl
-∪-∅-l {(Γ , A)} rewrite ∪-∅-l {Γ} = refl
-
-∪-∅-r : ∀ {Γ} → Γ ∪ ∅ ≡ Γ
-∪-∅-r {Γ} = refl
-
-∪-assoc : ∀ {Γ Γ1 Γ'} → ((Γ ∪ Γ1) ∪ Γ') ≡ (Γ ∪ (Γ1 ∪ Γ'))
-∪-assoc {Γ} {Γ1} {∅} = refl
-∪-assoc {Γ} {Γ1} {Γ' , A} rewrite ∪-assoc {Γ} {Γ1} {Γ'} = refl
-
--- context subset relation
-
-_⊆_ : Ctx → Ctx → Set
-Γ ⊆ Γ' = ∀ {t} → t ∈ Γ → t ∈ Γ'
-
--- some lemmas about subcontexts
-
-⊆-inc : ∀ {Γ Γ' A} → Γ ⊆ Γ' → (Γ , A) ⊆ (Γ' , A)
-⊆-inc Γ⊆Γ' here = here
-⊆-inc Γ⊆Γ' (there A∈Γ) = there (Γ⊆Γ' A∈Γ)
-
-⊆-∪-l : ∀ Γ Γ' → (Γ ⊆ (Γ ∪ Γ'))
-⊆-∪-l Γ ∅ p = p
-⊆-∪-l Γ (Γ' , A) p = there (⊆-∪-l Γ Γ' p)
-
-⊆-∪-r : ∀ Γ Γ' → Γ' ⊆ (Γ ∪ Γ')
-⊆-∪-r Γ .(_ , _) here = here
-⊆-∪-r Γ .(_ , _) (there p) = there (⊆-∪-r _ _ p)
 -}

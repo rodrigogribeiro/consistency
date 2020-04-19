@@ -50,6 +50,10 @@ infix 6 _∈_
 _∈_ : Form → Ctx → Set
 α ∈ Γ = Any (λ β → α ≡ β) Γ 
 
+pattern here = inl refl
+pattern there = inr
+
+
 -- some lemmas about Any
 
 Any-∪ : ∀ (P : Form → Set)(Γ Γ' : Ctx) →

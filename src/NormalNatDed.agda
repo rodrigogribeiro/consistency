@@ -1,6 +1,6 @@
 module NormalNatDed where
 
-open import Basics
+open import Basics hiding (id)
 open import Form
 open import NatDed
 
@@ -65,17 +65,25 @@ completeness (⊃-i p) = ⊃-i (fst (completeness p)) , change (⊃-i (fst (comp
 completeness (⊃-e p p') with completeness p | completeness p'
 ...| q | q' = change (⊃-e (snd q) (fst q')) , (⊃-e (snd q) (fst q'))
 
+-- weakening
+
+mutual
+  weakening-↑ : ∀ {Γ Γ' C} → Γ ⊆ Γ' → Γ ⊢+↑ C → Γ' ⊢+↑ C
+  weakening-↑ Γ⊆Γ' (⊃-i p) = ⊃-i (weakening-↑ (⊆-inc Γ⊆Γ') p)
+  weakening-↑ Γ⊆Γ' (⊥-e p) = ⊥-e (weakening-↓ Γ⊆Γ' p)
+  weakening-↑ Γ⊆Γ' (change p) = change (weakening-↓ Γ⊆Γ' p)
+  
+  weakening-↓ : ∀ {Γ Γ' C} → Γ ⊆ Γ' → Γ ⊢+↓ C → Γ' ⊢+↓ C
+  weakening-↓ Γ⊆Γ' (⊃-e p p') = ⊃-e (weakening-↓ Γ⊆Γ' p) (weakening-↑ Γ⊆Γ' p')
+  weakening-↓ Γ⊆Γ' (id p) = id (Γ⊆Γ' p)
+  weakening-↓ Γ⊆Γ' (change p) = change (weakening-↑ Γ⊆Γ' p)
 
 -- substitution
 
 mutual
   subst-↑ : ∀ {Γ Γ' A C} → (Γ , A) ∪ Γ' ⊢+↑ C → Γ ⊢+↓ A → Γ ∪ Γ' ⊢+↑ C
-  subst-↑ (⊃-i p) (⊃-e p' x) = ⊃-i (subst-↑ p (⊃-e p' x))
-  subst-↑ (⊃-i p) (id x) = ⊃-i (subst-↑ p (id x))
-  subst-↑ (⊃-i p) (change x) = ⊃-i (subst-↑ p (change x))
-  subst-↑ (⊥-e x) (⊃-e p' x₁) = ⊥-e (subst-↓ x (⊃-e p' x₁))
-  subst-↑ (⊥-e x) (id x₁) = ⊥-e (subst-↓ x (id x₁))
-  subst-↑ (⊥-e x) (change x₁) = ⊥-e (subst-↓ x (change x₁))
+  subst-↑ (⊃-i p) p' = change (⊃-e (change (⊃-i (⊃-i p))) (weakening-↑ (⊆-∪-l _ _) (change p')))
+  subst-↑ (⊥-e p) p' = ⊥-e (subst-↓ p p')
   subst-↑ (change x) p' = change (subst-↓ x p')
 
   subst-↓ : ∀ {Γ Γ' A C} → (Γ , A) ∪ Γ' ⊢+↓ C → Γ ⊢+↓ A → Γ ∪ Γ' ⊢+↓ C
@@ -87,15 +95,3 @@ mutual
   subst-↓ (change x) p' = change (subst-↑ x p')
 
 
--- weakening
-
-mutual
-  weakening-↑ : ∀ {Γ Γ' C} → Γ ⊆ Γ' → Γ ⊢+↑ C → Γ' ⊢+↑ C
-  weakening-↑ Γ⊆Γ' (⊃-i p) = ⊃-i (weakening-↑ (⊆-inc Γ⊆Γ') p)
-  weakening-↑ Γ⊆Γ' (⊥-e p) = ⊥-e (weakening-↓ Γ⊆Γ' p)
-  weakening-↑ Γ⊆Γ' (change p) = change (weakening-↓ Γ⊆Γ' p)
-
-  weakening-↓ : ∀ {Γ Γ' C} → Γ ⊆ Γ' → Γ ⊢+↓ C → Γ' ⊢+↓ C
-  weakening-↓ Γ⊆Γ' (⊃-e p p') = ⊃-e (weakening-↓ Γ⊆Γ' p) (weakening-↑ Γ⊆Γ' p')
-  weakening-↓ Γ⊆Γ' (id p) = id (Γ⊆Γ' p)
-  weakening-↓ Γ⊆Γ' (change p) = change (weakening-↑ Γ⊆Γ' p)

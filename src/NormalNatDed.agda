@@ -69,20 +69,20 @@ completeness (⊃-e p p') with completeness p | completeness p'
 
 mutual
   weakening-↑ : ∀ {Γ Γ' C} → Γ ⊆ Γ' → Γ ⊢+↑ C → Γ' ⊢+↑ C
-  weakening-↑ Γ⊆Γ' (⊃-i p) = ⊃-i (weakening-↑ (⊆-inc Γ⊆Γ') p)
+  weakening-↑ Γ⊆Γ' (⊃-i p) = ⊃-i (weakening-↑ (keep Γ⊆Γ') p)
   weakening-↑ Γ⊆Γ' (⊥-e p) = ⊥-e (weakening-↓ Γ⊆Γ' p)
   weakening-↑ Γ⊆Γ' (change p) = change (weakening-↓ Γ⊆Γ' p)
   
   weakening-↓ : ∀ {Γ Γ' C} → Γ ⊆ Γ' → Γ ⊢+↓ C → Γ' ⊢+↓ C
   weakening-↓ Γ⊆Γ' (⊃-e p p') = ⊃-e (weakening-↓ Γ⊆Γ' p) (weakening-↑ Γ⊆Γ' p')
-  weakening-↓ Γ⊆Γ' (id p) = id (Γ⊆Γ' p)
+  weakening-↓ Γ⊆Γ' (id p) = id (∈-⊆ Γ⊆Γ' p)
   weakening-↓ Γ⊆Γ' (change p) = change (weakening-↑ Γ⊆Γ' p)
 
 -- substitution
 
 mutual
   subst-↑ : ∀ {Γ Γ' A C} → (Γ , A) ∪ Γ' ⊢+↑ C → Γ ⊢+↓ A → Γ ∪ Γ' ⊢+↑ C
-  subst-↑ (⊃-i p) p' = change (⊃-e (change (⊃-i (⊃-i p))) (weakening-↑ (⊆-∪-l _ _) (change p')))
+  subst-↑ (⊃-i p) p' = ⊃-i (subst-↑ p p')
   subst-↑ (⊥-e p) p' = ⊥-e (subst-↓ p p')
   subst-↑ (change x) p' = change (subst-↓ x p')
 

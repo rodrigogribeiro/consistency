@@ -15,6 +15,58 @@ data _⇒_ : Ctx → Form → Set where
   ⊃-r  : ∀ {Γ A B} → Γ , A ⇒ B → Γ ⇒ A ⊃ B
 
 
+---------------------------
+-- structural properties --
+---------------------------
+
+-- 1. weakening
+
+weakening : ∀ {Γ Γ' A} → Γ ⊆ Γ' → Γ ⇒ A → Γ' ⇒ A
+weakening s (init x) = init (∈-⊆ s x)
+weakening s (⊥-l p) = ⊥-l (weakening s p)
+weakening s (cut p p₁) = cut (weakening s p) (weakening (keep s) p₁)
+weakening s (⊃-l d p p₁) = ⊃-l (∈-⊆ s d) (weakening s p) (weakening (keep s) p₁)
+weakening s (⊃-r p) = ⊃-r (weakening (keep s) p)
+
+
+-- 2. monotonicity, based on set-based equality
+
+monotonicity : ∀ {Γ Γ' C} → Γ ≈ Γ' → Γ ⇒ C → Γ' ⇒ C
+monotonicity ex (init x) = init (_↔_.to (ex _) x)
+monotonicity ex (⊥-l p) = ⊥-l (monotonicity ex p)
+monotonicity ex (cut p p') = cut (monotonicity ex p) (monotonicity (≈-inc ex) p')
+monotonicity ex (⊃-l d p p') = ⊃-l (∈-≈ ex d) (monotonicity ex p) (monotonicity (≈-inc ex) p')
+monotonicity ex (⊃-r p) = ⊃-r (monotonicity (≈-inc ex) p)
+
+-------------------------------- 
+-- soundness and completeness --
+--------------------------------
+
+soundness : ∀ {Γ C} → Γ ⇒ C → Γ ⊢+↑ C
+soundness (init x) = change (id x)
+soundness (⊥-l p) = ⊥-e (change (soundness p))
+soundness (cut p p₁) = change (⊃-e (change (⊃-i (soundness p₁))) (soundness p))
+soundness (⊃-l d p p₁) = subst-↑ (soundness p₁) (⊃-e (id d) (soundness p))
+soundness (⊃-r p) = ⊃-i (soundness p)
+
+
+private 
+  ⊆-completeness1 : ∀ {Γ B} A → (Γ , B) ⊆ (Γ , A , B)
+  ⊆-completeness1 {∅} _ = keep (drop stop)
+  ⊆-completeness1 {Γ , C} _ = keep (drop ⊆-refl)
+
+
+mutual
+  completeness-↑ : ∀ {Γ C} → Γ ⊢+↑ C → Γ ⇒ C
+  completeness-↑ (⊃-i p) = ⊃-r (completeness-↑ p)
+  completeness-↑ (⊥-e x) = ⊥-l (completeness-↓ x (init here))
+  completeness-↑ (change x) = completeness-↓ x (init here) 
+
+  completeness-↓ : ∀ {Γ A C} → Γ ⊢+↓ A → Γ , A ⇒ C → Γ ⇒ C
+  completeness-↓ (⊃-e {A = A}{B = B} p x) p' = ?
+  completeness-↓ (id x) p' = monotonicity (≈-sym (≈-rem x)) p'
+  completeness-↓ (change x) p' = cut (completeness-↑ x) p'
+
 -- ⊆-lemma : ∀ {Γ Γ' A B} → (Γ , A) ⊆ Γ' → (Γ' , A) ⇒ B → Γ' ⇒ B
 -- ⊆-lemma p (init (inl x)) = init (p (inl x))
 -- ⊆-lemma p (init (inr x)) = init x

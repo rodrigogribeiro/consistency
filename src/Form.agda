@@ -89,9 +89,21 @@ data _⊆_ : Ctx → Ctx → Set where
 ⊆-refl {∅} = stop
 ⊆-refl {Γ , x} = keep ⊆-refl
 
+⊆-trans : ∀ {Γ}{Γ1}{Γ'} → Γ ⊆ Γ1 → Γ1 ⊆ Γ' → Γ ⊆ Γ'
+⊆-trans stop stop = stop
+⊆-trans stop (drop p') = drop p'
+⊆-trans (drop p) (drop p') = drop (⊆-trans (drop p) p')
+⊆-trans (drop p) (keep p') = drop (⊆-trans p p')
+⊆-trans (keep p) (drop p') = drop (⊆-trans (keep p) p')
+⊆-trans (keep p) (keep p') = keep (⊆-trans p p')
+
 ∅-⊆ : ∀ {Γ} → ∅ ⊆ Γ
 ∅-⊆ {∅} = stop
 ∅-⊆ {Γ , x} = drop ∅-⊆
+
+⊆-∪-∅-r : ∀ {Γ} → Γ ⊆ (Γ ∪ ∅)
+⊆-∪-∅-r {∅} = stop
+⊆-∪-∅-r {Γ , x} = keep ⊆-∪-∅-r
 
 -- embedding membership proofs
 
@@ -108,6 +120,38 @@ data _⊆_ : Ctx → Ctx → Set where
 ⊆-∪-r : ∀ Γ Γ' → Γ' ⊆ (Γ ∪ Γ')
 ⊆-∪-r Γ ∅ = ∅-⊆
 ⊆-∪-r Γ (Γ' , x) = keep (⊆-∪-r Γ Γ')
+
+-- set equality for contexts
+
+_≈_ : Ctx → Ctx → Set
+Γ ≈ Γ' = ∀ p → p ∈ Γ ↔ p ∈ Γ'
+
+≈-refl : ∀ {Γ} → Γ ≈ Γ
+≈-refl {Γ} = λ p → record { to = id ; from = id }
+
+≈-sym : ∀ {Γ Γ'} → Γ ≈ Γ' → Γ' ≈ Γ
+≈-sym r = λ p →
+  record { to = _↔_.from (r p) ; from = _↔_.to (r p) }
+
+≈-trans : ∀ {Γ Γ1 Γ'} → Γ ≈ Γ1 → Γ1 ≈ Γ' → Γ ≈ Γ'
+≈-trans r r' = λ p →
+  record { to =  _↔_.to (r' p) ∘ (_↔_.to (r p))
+         ; from = _↔_.from (r p) ∘ _↔_.from (r' p) }
+
+≈-inc : ∀ {Γ Γ' A} → Γ ≈ Γ' → (Γ , A) ≈ (Γ' , A)
+≈-inc r p
+  = record { to = to' r ; from = to' (≈-sym r) }
+    where
+      to' : ∀ {Γ Γ' A p} → Γ ≈ Γ'  → p ∈ (Γ , A) → p ∈ (Γ' , A)
+      to' r here = here
+      to' r (there q) = there (_↔_.to (r _) q)
+
+∈-≈ : ∀ {Γ Γ' A} → Γ ≈ Γ' → A ∈ Γ → A ∈ Γ'
+∈-≈ ex p = _↔_.to (ex _) p
+
+≈-rem : ∀ {Γ A} → A ∈ Γ → Γ ≈ (Γ , A)
+≈-rem {Γ} p = λ a → record { to = there ; from = [ (λ eq → subst (λ x → x ∈ Γ) (sym eq) p) , id ] ∘ ∈-inv }
+
 
 {-
 -- monoidal properties of context permutations

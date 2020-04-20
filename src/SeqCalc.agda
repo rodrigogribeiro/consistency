@@ -63,7 +63,7 @@ mutual
   completeness-↑ (change x) = completeness-↓ x (init here) 
 
   completeness-↓ : ∀ {Γ A C} → Γ ⊢+↓ A → Γ , A ⇒ C → Γ ⇒ C
-  completeness-↓ (⊃-e {A = A}{B = B} p x) p' = ?
+  completeness-↓ (⊃-e {A = A}{B = B} p x) p' = {!!}
   completeness-↓ (id x) p' = monotonicity (≈-sym (≈-rem x)) p'
   completeness-↓ (change x) p' = cut (completeness-↑ x) p'
 

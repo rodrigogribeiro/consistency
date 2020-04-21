@@ -56,13 +56,16 @@ data _⊎_ (A B : Set) : Set where
 [ f , g ] (inl x) = f x
 [ f , g ] (inr x) = g x
 
-record _×_ (A B : Set) : Set where
+record Σ (A : Set)(B : A → Set) : Set where
   constructor _,_
   field
     fst : A
-    snd : B
+    snd : B fst
 
-open _×_ public
+open Σ public
+
+_×_ : Set → Set → Set
+A × B = Σ A (λ _ → B)
 
 infixr 9 _∘_
 

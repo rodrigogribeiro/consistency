@@ -75,6 +75,9 @@ g ∘ f = λ x → g (f x)
 ¬_ : Set → Set
 ¬ A = A → ⊥
 
+_≢_ : ∀ {a}{A : Set a} → A → A → Set a
+x ≢ y = x ≡ y → ⊥
+
 data Dec (P : Set) : Set where
   yes : P → Dec P
   no  : ¬ P → Dec P

@@ -49,16 +49,18 @@ module SeqCalc where
   ...| no  q = ⊃-r (⇒-monotonicity (⊆-inc (⊝-∪-r-stay x)) p')
   ⇒-cut-lemma {A = A ⊃ B} (⊥-l p) p' = ⊥-l (⇒-monotonicity (⊆-∪-l _ _) p)
   ⇒-cut-lemma {A = A ⊃ B} (⊃-l {A = A'}{B = B'} x p p₁) (init {A = C} x₁) with C ≟ (A ⊃ B)
-  ...| yes q rewrite q = ?
+  ...| yes q rewrite q = ⊃-l (∈-∪-intro-l x) (⇒-monotonicity (⊆-∪-l _ _) p) (⇒-monotonicity (⊆-inc (⊆-∪-l _ _)) p₁)
   ...| no  q = init (∈-∪-intro-r (⊝-∈-≢ q x₁))
   ⇒-cut-lemma {A = A ⊃ B} (⊃-l x p p₁) (⊥-l p') = ⊥-l (⇒-cut-lemma (⊃-l x p p₁) p')
-  ⇒-cut-lemma {A = A ⊃ B} (⊃-l x p p₁) (⊃-l x₁ p' p'') = {!!}
-  ⇒-cut-lemma {A = A ⊃ B} (⊃-l x p p₁) (⊃-r {A = A'}{B = B'} p') = ⊃-l (∈-∪-intro-l x) (⇒-monotonicity (⊆-∪-l _ _) p) (⊃-r (⇒-monotonicity (⊆-inc {!!}) p'))
+  ⇒-cut-lemma {A = A ⊃ B} (⊃-l {A = A1}{B = B1} x p p₁) (⊃-l {A = A2}{B = B2} x₁ p' p'') with (A2 ⊃ B2) ≟ (A1 ⊃ B1)
+  ...| yes q rewrite q = {!!}
+  ...| no  q = {!!}
+  ⇒-cut-lemma {A = A ⊃ B} (⊃-l x p p₁) (⊃-r {A = A'}{B = B'} p') = {!!} 
   ⇒-cut-lemma {A = A ⊃ B} (⊃-r p) (init {A = C} x) with C ≟ (A ⊃ B)
   ...| yes q rewrite q = ⊃-r (⇒-monotonicity (⊆-inc (⊆-∪-l _ _)) p)
   ...| no  q = init (∈-∪-intro-r (⊝-∈-≢ q x))
   ⇒-cut-lemma {A = A ⊃ B} (⊃-r p) (⊥-l p') = ⊥-l (⇒-cut-lemma (⊃-r p) p')
-  ⇒-cut-lemma {A = A ⊃ B} (⊃-r p) (⊃-l x p' p'') = {!!}
+  ⇒-cut-lemma {A = A ⊃ B}{C = C} (⊃-r p) (⊃-l {A = A'}{B = B'} x p' p'') = {!!}
   ⇒-cut-lemma {A = A ⊃ B} (⊃-r p) (⊃-r {A = A'}{B = B'} p') with (A ⊃ B) ≟ (A' ⊃ B')
   ...| yes q rewrite (sym q) = ⇒-monotonicity (⊆-∪-l _ _) (⊃-r p)
-  ...| no  q = ⇒-cut-lemma {!!} {!!}
+  ...| no  q = {!!}

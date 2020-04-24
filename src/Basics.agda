@@ -1,5 +1,7 @@
 module Basics where
 
+-- propositional equality
+
 infix 4 _≡_
 
 data _≡_ {a} {A : Set a} (x : A) : A → Set a where
@@ -17,7 +19,15 @@ cong : ∀ {a}{A B : Set a}{x y : A}(f : A → B) → x ≡ y → f x ≡ f y
 cong f refl = refl
 
 subst : ∀ {a b}{A : Set a}{x y : A}(P : A → Set b) → x ≡ y → P x → P y
-subst P refl px = px 
+subst P refl px = px
+
+-- inspect idiom
+
+data Singleton {a} {A : Set a} (x : A) : Set a where
+  _with≡_ : (y : A) → x ≡ y → Singleton x
+
+inspect : ∀ {a} {A : Set a} (x : A) → Singleton x
+inspect x = x with≡ refl
 
 -- equational reasoning
 

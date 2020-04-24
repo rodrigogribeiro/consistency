@@ -35,7 +35,7 @@ data Ctx : Set where
   ∅   : Ctx
   _,_ : Ctx → Form → Ctx
 
-infixr 6 _∪_
+infix 6 _∪_
 
 _∪_ : Ctx → Ctx → Ctx
 Γ ∪ ∅ = Γ
@@ -150,7 +150,7 @@ _≈_ : Ctx → Ctx → Set
 _⊝_ : Ctx → Form → Ctx
 ∅ ⊝ A = ∅
 (Γ , B) ⊝ A with B ≟ A
-...| yes eq rewrite eq = Γ ⊝ A
+...| yes eq = Γ ⊝ A
 ...| no  eq = (Γ ⊝ A) , B
 
 
@@ -189,3 +189,11 @@ _⊝_ : Ctx → Form → Ctx
   = there (∈-∪-intro-r (⊝-∈-≢ x q))
 ⊝-∪-r-stay {Γ , B} {Γ' , B'} {A} (there p) C (there q) | no q' | no x
   = there (∈-∪-intro-r (⊝-∈-≢ x q))
+
+⊝-⊆-head : ∀ Γ A → (Γ , A) ⊝ A ≡ Γ ⊝ A
+⊝-⊆-head ∅ A with A ≟ A
+...| yes q rewrite q = refl
+...| no  q = ⊥-elim (q refl)
+⊝-⊆-head (Γ , x) A with A ≟ A
+...| yes q rewrite q = refl
+...| no  q = ⊥-elim (q refl)
